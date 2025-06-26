@@ -151,7 +151,7 @@
   <!-- Firebase va auth  -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
     // Firebase konfiguratsiya
     const firebaseConfig = {
@@ -165,13 +165,6 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
-    // Foydalanuvchi login bo'lganini tekshirish
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = "dashboard.html";
-      }
-    });
 
 
     const loginForm = document.getElementById("loginForm");

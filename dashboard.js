@@ -609,13 +609,60 @@ function saveSearchedCode(code, name) {
 function renderSearchedCodes() {
   const wrap = document.getElementById('searchedCodesWrap');
   if (!wrap) return;
-  const arr = JSON.parse(localStorage.getItem(searchedCodesKey) || '[]');
-  wrap.innerHTML = arr.map(item => `
-    <button class="searched-code-btn bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-800 text-xs font-mono rounded px-3 py-1 m-1 border border-gray-300 dark:border-gray-600 transition"
-      data-code="${item.code}">
-      ${item.code} <span class="ml-2 text-gray-500">(${item.name})</span>
-    </button>
-  `).join('');
+  let arr = JSON.parse(localStorage.getItem(searchedCodesKey) || '[]');
+  wrap.innerHTML = '';
+  arr.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = "bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 m-1 flex flex-col gap-2 min-w-[220px] shadow relative";
+    // Ism inputi faqat ism yo‘q bo‘lsa chiqadi
+    let nameInputHtml = '';
+    if (!item.name) {
+      nameInputHtml = `
+        <form class="flex gap-2 mt-2 name-form">
+          <input type="text" placeholder="Ism kiriting" class="flex-1 p-2 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 rounded text-xs" required>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">Yozish</button>
+        </form>
+      `;
+    }
+    card.innerHTML = `
+      <div class="flex items-center gap-2">
+        <span class="font-mono text-base bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">${item.code}</span>
+        <span class="ml-2 text-gray-700 dark:text-gray-200 text-sm">${item.name ? item.name : '<span class="text-gray-400">Ism yo‘q</span>'}</span>
+      </div>
+      ${nameInputHtml}
+      <div class="flex gap-2 mt-2">
+        <button class="see-btn bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-xs">Ko‘rish</button>
+        <button class="delete-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">O‘chirish</button>
+      </div>
+    `;
+    // Ism yozish
+    if (!item.name) {
+      card.querySelector('.name-form').onsubmit = function(e) {
+        e.preventDefault();
+        const val = this.querySelector('input').value.trim();
+        if (val) {
+          arr[idx].name = val;
+          localStorage.setItem(searchedCodesKey, JSON.stringify(arr));
+          renderSearchedCodes();
+        }
+      };
+    }
+    // Ko‘rish tugmasi
+    card.querySelector('.see-btn').onclick = () => {
+      const input = document.getElementById('searchByCodeInput');
+      input.value = item.code;
+      input.dispatchEvent(new Event('input'));
+    };
+    // O‘chirish tugmasi
+    card.querySelector('.delete-btn').onclick = async () => {
+      if (await showConfirmDiv("O‘chirishni xohlaysizmi?")) {
+        arr.splice(idx, 1);
+        localStorage.setItem(searchedCodesKey, JSON.stringify(arr));
+        renderSearchedCodes();
+      }
+    };
+    wrap.appendChild(card);
+  });
 }
 renderSearchedCodes();
 
